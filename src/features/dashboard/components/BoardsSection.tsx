@@ -22,6 +22,7 @@ interface BoardsSectionProps {
   onViewModeChange: (mode: "grid" | "list") => void;
   onFilterClick: () => void;
   onCreateBoard: () => void;
+  creating: boolean;
   activeFilterCount: number;
   isFreeUser: boolean;
   onSearchChange: (value: string) => void;
@@ -35,6 +36,7 @@ export function BoardsSection({
   onViewModeChange,
   onFilterClick,
   onCreateBoard,
+  creating,
   activeFilterCount,
   isFreeUser,
   onSearchChange,
@@ -88,7 +90,11 @@ export function BoardsSection({
               <Badge variant={"outline"}>{activeFilterCount}</Badge>
             )}
           </Button>
-          <Button onClick={onCreateBoard} className="py-5 cursor-pointer">
+          <Button
+            onClick={onCreateBoard}
+            disabled={creating}
+            className="py-5 cursor-pointer"
+          >
             <Plus />
             Create Board
           </Button>
@@ -112,8 +118,8 @@ export function BoardsSection({
         <div>No boards yet</div>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {boards.map((board, key) => (
-            <Link href={`/boards/${board.id}`} key={key}>
+          {boards.map((board) => (
+            <Link href={`/boards/${board.id}`} key={board.id}>
               <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
@@ -144,7 +150,8 @@ export function BoardsSection({
           ))}
           <Card
             className="border-2 border-dashed border-gray-300 hover:border-blue-400 transition-colors cursor-pointer group"
-            onClick={onCreateBoard}
+            onClick={creating ? undefined : onCreateBoard}
+            aria-disabled={creating}
           >
             <CardContent className="p-4 sm:p-6 flex flex-col items-center justify-center h-full min-h-[150px] box-border">
               <Plus className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 group-hover:text-blue-600 mb-2" />
@@ -157,7 +164,7 @@ export function BoardsSection({
       ) : (
         <div>
           {boards.map((board, key) => (
-            <div key={key} className={key > 0 ? "mt-4" : ""}>
+            <div key={board.id} className={key > 0 ? "mt-4" : ""}>
               <Link href={`/boards/${board.id}`}>
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
                   <CardHeader className="pb-3">
@@ -192,7 +199,8 @@ export function BoardsSection({
           ))}
           <Card
             className="mt-4 border-2 border-dashed border-gray-300 hover:border-blue-400 transition-colors cursor-pointer group"
-            onClick={onCreateBoard}
+            onClick={creating ? undefined : onCreateBoard}
+            aria-disabled={creating}
           >
             <CardContent className="p-4 sm:p-6 flex flex-col items-center justify-center h-full min-h-[200px]">
               <Plus className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 group-hover:text-blue-600 mb-2" />

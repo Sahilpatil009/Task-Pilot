@@ -11,7 +11,7 @@ import { useState } from "react";
 interface DroppableColumnProps {
   column: ColumnWithTasks;
   children: React.ReactNode;
-  onCreateTask: (task: any) => Promise<void>;
+  onCreateTask: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
   onEditColumn: (column: ColumnWithTasks) => void;
   onDeleteColumn: (columnId: string) => void;
 }
@@ -26,8 +26,8 @@ export function DroppableColumn({
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
   const [isCreatingTask, setIsCreatingTask] = useState(false);
 
-  const handleCreateTask = (e: React.FormEvent<HTMLFormElement>) => {
-    onCreateTask(e);
+  const handleCreateTask = async (e: React.FormEvent<HTMLFormElement>) => {
+    await onCreateTask(e);
     setIsCreatingTask(false);
   };
 

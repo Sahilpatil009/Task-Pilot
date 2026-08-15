@@ -51,6 +51,18 @@ export function SortableTask({ task, onDeleteTask }: SortableTaskProps) {
               >
                 {formatDueStatus(dueStatus)}
               </Badge>
+              <button
+                type="button"
+                aria-label={`Delete ${task.title}`}
+                className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDeleteTask(task.id);
+                }}
+              >
+                <Trash2 className="size-4" />
+              </button>
             </div>
             <p className="text-xs text-gray-600 line-clamp-2">
               {task.description || "No description"}

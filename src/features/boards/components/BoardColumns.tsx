@@ -14,7 +14,7 @@ import { SortableTask } from "./SortableTask";
 interface BoardColumnsProps {
   columns: ColumnWithTasks[];
   loading: boolean;
-  onCreateTask: (task: any) => Promise<void>;
+  onCreateTask: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
   onEditColumn: (column: ColumnWithTasks) => void;
   onDeleteColumn: (columnId: string) => void;
   onDeleteTask: (taskId: string) => void;
@@ -36,9 +36,9 @@ export function BoardColumns({
 
   return (
     <div className="flex flex-col lg:flex-row lg:space-x-6 lg:overflow-x-auto lg:pb-6 lg:px-2 lg:-mx-2 lg:[&::-webkit-scrollbar]:h-2 lg:[&::-webkit-scrollbar-track]:bg-gray-100 lg:[&::-webkit-scrollbar-thumb]:bg-gray-300 lg:[&::-webkit-scrollbar-thumb]:rounded-full space-y-4 lg:space-y-0">
-      {columns.map((column, key) => (
+      {columns.map((column) => (
         <DroppableColumn
-          key={key}
+          key={column.id}
           column={column}
           onCreateTask={onCreateTask}
           onEditColumn={onEditColumn}
@@ -49,9 +49,9 @@ export function BoardColumns({
             strategy={verticalListSortingStrategy}
           >
             <div className="space-y-3">
-              {column.tasks.map((task, key) => (
+              {column.tasks.map((task) => (
                 <SortableTask
-                  key={key}
+                  key={task.id}
                   task={task}
                   onDeleteTask={onDeleteTask}
                 />

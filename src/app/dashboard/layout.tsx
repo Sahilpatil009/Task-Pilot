@@ -6,7 +6,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { has } = await auth();
+  const { has } = await auth.protect();
   const hasProPlan = has({ plan: "pro_user" });
   const hasEnterprisePlan = has({ plan: "enterprise_user" });
 

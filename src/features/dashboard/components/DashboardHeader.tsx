@@ -1,4 +1,4 @@
-"use Client";
+"use client";
 
 import { HeaderSkeleton } from "@/components/skeletons/DashboardHeader";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ export function DashboardHeader({
         👋
       </h1>
       <p className="text-gray-600">
-        Here's what's happening with your boards today.
+        Here&apos;s what&apos;s happening with your boards today.
       </p>
       <Button
         className="w-full sm:w-auto mt-2 cursor-pointer"

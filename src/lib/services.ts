@@ -7,9 +7,10 @@ export const boardService = {
       .from("boards")
       .select("*")
       .eq("id", boardId)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
+    if (!data) throw new Error("Board not found or you do not have access.");
 
     return data;
   },
@@ -43,7 +44,8 @@ export const boardService = {
             0,
           ) || 0;
 
-        const { columns, ...boardWithoutColumns } = board;
+        const boardWithoutColumns = { ...board };
+        delete boardWithoutColumns.columns;
         return {
           ...boardWithoutColumns,
           totalTasks,

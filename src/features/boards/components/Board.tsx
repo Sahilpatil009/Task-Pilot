@@ -8,7 +8,6 @@ import { ErrorState } from "@/components/common/Error";
 import {
   DndContext,
   DragEndEvent,
-  DragOverEvent,
   DragOverlay,
   DragStartEvent,
   PointerSensor,
@@ -157,14 +156,6 @@ export default function Board() {
     }
   };
 
-  const handleDragOver = async (event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over) return;
-    const activeId = active.id as string;
-    const overId = over.id as string;
-    console.log("Dragging Over", { activeId, overId });
-  };
-
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
@@ -283,7 +274,6 @@ export default function Board() {
   }));
 
   if (error) {
-    console.log(error);
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
@@ -334,7 +324,6 @@ export default function Board() {
             sensors={sensors}
             collisionDetection={rectIntersection}
             onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
           >
             <BoardColumns

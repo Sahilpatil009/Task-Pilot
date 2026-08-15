@@ -16,7 +16,7 @@ import { BaseDialog } from "@/components/common/BasicDialog";
 interface CreateTaskDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
   columnId?: string;
 }
 

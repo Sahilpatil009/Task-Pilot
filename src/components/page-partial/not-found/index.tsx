@@ -1,5 +1,4 @@
 import Navbar from "@/components/layout/Navbar";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Home, ArrowLeft, Compass, Zap } from "lucide-react";

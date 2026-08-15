@@ -1,10 +1,10 @@
 "use client";
 
 import { boardDataService, boardService } from "@/lib/services";
-import { Board } from "@/lib/supabase/models";
+import type { Board } from "@/lib/supabase/models";
 import { useSupabase } from "@/providers/SupabaseProvider";
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 function getErrorMessage(error: unknown, fallback: string) {
   if (error instanceof Error) return error.message;
@@ -22,25 +22,36 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 export function useBoards() {
-  const { user } = useUser();
-  const { supabase, isLoaded } = useSupabase();
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const { supabase, isLoaded: isSupabaseLoaded } = useSupabase();
   const [boards, setBoards] = useState<Board[]>([]);
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isCreatingRef = useRef(false);
 
-  useEffect(() => {
-    if (user && isLoaded && supabase) {
-      loadBoards();
+  const userId = user?.id;
+
+  const loadBoards = useCallback(async () => {
+    if (!isUserLoaded || !isSupabaseLoaded) return;
+
+    if (!userId) {
+      setBoards([]);
+      setError(null);
+      setLoading(false);
+      return;
     }
-  }, [user, isLoaded]);
 
-  async function loadBoards() {
-    if (!user) return;
+    if (!supabase) {
+      setError("Supabase client is unavailable.");
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
       setError(null);
-      const data = await boardService.getBoards(supabase!, user.id);
+      const data = await boardService.getBoards(supabase, userId);
       setBoards(data);
     } catch (err) {
       console.error("Failed to load boards", err);
@@ -48,33 +59,52 @@ export function useBoards() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [isSupabaseLoaded, isUserLoaded, supabase, userId]);
+
+  useEffect(() => {
+    const request = Promise.resolve().then(loadBoards);
+    void request;
+  }, [loadBoards]);
 
   async function createBoard(boardData: {
     title: string;
     description?: string;
     color?: string;
   }) {
-    if (!user) throw new Error("User not authenticated");
+    if (isCreatingRef.current) return;
+
+    if (!userId || !supabase) {
+      setError("User is not authenticated.");
+      return;
+    }
+
+    isCreatingRef.current = true;
+    setCreating(true);
 
     try {
       const newBoard = await boardDataService.createBoardWithDefaultColumns(
-        supabase!,
+        supabase,
         {
           ...boardData,
-          userId: user.id,
+          userId,
         },
       );
       setBoards((prev) => [newBoard, ...prev]);
     } catch (err) {
       console.error("Failed to create board", err);
       setError(getErrorMessage(err, "Failed to create board."));
+    } finally {
+      isCreatingRef.current = false;
+      setCreating(false);
     }
   }
 
-  const refetch = () => {
-    loadBoards();
+  return {
+    boards,
+    loading,
+    creating,
+    error,
+    createBoard,
+    refetch: loadBoards,
   };
-
-  return { boards, loading, error, createBoard, refetch };
 }

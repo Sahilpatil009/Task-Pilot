@@ -1,5 +1,8 @@
 import Board from "@/features/boards/components/Board";
+import { auth } from "@clerk/nextjs/server";
 
-export default function BoardPage() {
+export default async function BoardPage() {
+  await auth.protect();
+
   return <Board />;
 }

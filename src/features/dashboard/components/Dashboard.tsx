@@ -4,17 +4,17 @@ import Navbar from "@/components/layout/Navbar";
 import { Board } from "@/lib/supabase/models";
 import { useState } from "react";
 import { useBoards } from "../hooks/useBoards";
-import { FilterDialog } from "./FilterDialog";
+import { BoardFilters, FilterDialog } from "./FilterDialog";
 import { BoardsSection } from "./BoardsSection";
 import { StatsSection } from "./StatsSection";
 import { DashboardHeader } from "./DashboardHeader";
 import { ErrorState } from "@/components/common/Error";
 
 export default function Dashboard() {
-  const { createBoard, boards, loading, error, refetch } = useBoards();
+  const { createBoard, boards, loading, creating, error, refetch } = useBoards();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<BoardFilters>({
     search: "",
     dateRange: {
       start: null as string | null,
@@ -25,8 +25,6 @@ export default function Dashboard() {
       max: null as number | null,
     },
   });
-
-  const canCreateBoard = true;
 
   function clearFilters() {
     setFilters({
@@ -101,7 +99,10 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <main className="container mx-auto px-4 py-6 sm:py-8">
-        <DashboardHeader onCreateBoard={handleCreateBoard} loading={loading} />
+        <DashboardHeader
+          onCreateBoard={handleCreateBoard}
+          loading={loading || creating}
+        />
 
         <StatsSection boards={boards} loading={loading} />
 
@@ -112,6 +113,7 @@ export default function Dashboard() {
           onViewModeChange={setViewMode}
           onFilterClick={() => setIsFilterOpen(true)}
           onCreateBoard={handleCreateBoard}
+          creating={creating}
           activeFilterCount={activeFilterCount}
           onSearchChange={handleSearchChange}
           searchValue={filters.search}

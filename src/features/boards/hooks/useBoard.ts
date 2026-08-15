@@ -9,7 +9,7 @@ import {
 import { Board, ColumnWithTasks, Task } from "@/lib/supabase/models";
 import { useSupabase } from "@/providers/SupabaseProvider";
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useBoard(boardId: string) {
   const { supabase, isLoaded } = useSupabase();
@@ -20,30 +20,31 @@ export function useBoard(boardId: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (boardId && isLoaded && supabase) {
-      loadBoard();
-    }
-  }, [boardId, isLoaded]);
-
-  async function loadBoard() {
-    if (!boardId) return;
+  const loadBoard = useCallback(async () => {
+    if (!boardId || !supabase) return;
 
     try {
       setLoading(true);
       setError(null);
       const data = await boardDataService.getBoardWithColumns(
-        supabase!,
+        supabase,
         boardId,
       );
       setBoard(data.board);
       setColumns(data.columnsWithTasks);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load boards.");
+      setError(err instanceof Error ? err.message : "Failed to load the board.");
     } finally {
       setLoading(false);
     }
-  }
+  }, [boardId, supabase]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const request = Promise.resolve().then(loadBoard);
+    void request;
+  }, [isLoaded, loadBoard]);
 
   async function updateBoard(boardId: string, updates: Partial<Board>) {
     try {
@@ -105,7 +106,7 @@ export function useBoard(boardId: string) {
     const prevColumns = structuredClone(columns);
     try {
       setColumns((prev) => {
-        const newColumns = [...prev];
+        const newColumns = structuredClone(prev);
 
         // Find and remove task from the old column
         let taskToMove: Task | null = null;
@@ -131,9 +132,6 @@ export function useBoard(boardId: string) {
       await taskService.moveTask(supabase!, taskId, newColumnId, newOrder);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to move task.");
-      // Rollback UI to previous state
-      console.log("columns", columns);
-      console.log("prev", prevColumns);
       setColumns(prevColumns);
     }
   }
