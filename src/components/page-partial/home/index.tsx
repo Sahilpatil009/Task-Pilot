@@ -1,0 +1,17 @@
+import Navbar from "@/components/layout/Navbar";
+import Hero from "./Hero";
+import Feature from "./Feature";
+import CallToAction from "./CallToAction";
+import Footer from "@/components/layout/Footer";
+
+export default function HomePagePartial() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Navbar />
+      <Hero />
+      <Feature />
+      <CallToAction />
+      <Footer />
+    </div>
+  );
+}
